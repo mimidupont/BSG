@@ -6,15 +6,18 @@ import { supabase } from '../lib/supabaseClient'
 export default function Dashboard() {
   const [player, setPlayer] = useState(null)
 
-  async function loadPlayer() {
-    const { data } = await supabase
-      .from('players')
-      .select('*')
-      .limit(1)
-      .single()
+async function loadPlayer() {
+  const { data, error } = await supabase
+    .from('players')
+    .select('*')
+    .limit(1)
+    .single()
 
-    setPlayer(data)
-  }
+  console.log('Supabase data:', data)
+  console.log('Supabase error:', error)
+
+  setPlayer(data)
+}
 
   async function produce() {
     await fetch('/api/produce', { method: 'POST' })
