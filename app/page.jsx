@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabaseClient'
 
 export default function Dashboard() {
-  const [player, setPlayer] = useState<any>(null)
+  const [player, setPlayer] = useState(null)
 
   async function loadPlayer() {
     const { data } = await supabase
