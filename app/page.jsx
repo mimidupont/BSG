@@ -5,30 +5,42 @@ import { supabase } from '../lib/supabaseClient'
 
 export default function Dashboard() {
   const [player, setPlayer] = useState(null)
+  const [error, setError] = useState(null)
+  const [loading, setLoading] = useState(true)
 
-async function loadPlayer() {
-  const { data, error } = await supabase
-    .from('players')
-    .select('*')
-    .limit(1)
-    .single()
+  async function loadPlayer() {
+    const { data, error } = await supabase
+      .from('players')
+      .select('*')
+      .limit(1)
+      .single()
 
-  console.log('Supabase data:', data)
-  console.log('Supabase error:', error)
-
-  setPlayer(data)
-}
+    if (error) {
+      setError('Failed to load player')
+    } else {
+      setPlayer(data)
+    }
+    setLoading(false)
+  }
 
   async function produce() {
-    await fetch('/api/produce', { method: 'POST' })
-    await loadPlayer()
+    const res = await fetch('/api/produce', { method: 'POST' })
+    const json = await res.json()
+    if (json.error) {
+      setError(json.error)
+    } else {
+      setError(null)
+      await loadPlayer()
+    }
   }
 
   useEffect(() => {
     loadPlayer()
   }, [])
 
-  if (!player) return <div>Loading...</div>
+  if (loading) return <div>Loading...</div>
+  if (error) return <div>Error: {error}</div>
+  if (!player) return <div>No player found.</div>
 
   return (
     <div>
