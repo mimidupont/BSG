@@ -26,11 +26,17 @@ export async function POST() {
     .update({ cash: player.cash - 100 })
     .eq('id', player.id)
 
-  await supabase.from('inventory').upsert({
-    player_id: player.id,
-    product: 'basic_mat',
-    quantity: 10
-  })
+  const { data: inv } = await supabase
+  .from('inventory')
+  .select('quantity')
+  .eq('player_id', player.id)
+  .eq('product', 'basic_mat')
+  .single()
+
+await supabase.from('inventory').upsert(
+  { player_id: player.id, product: 'basic_mat', quantity: (inv?.quantity ?? 0) + 10 },
+  { onConflict: 'player_id,product' }
+)
 
   return NextResponse.json({ success: true })
 }
